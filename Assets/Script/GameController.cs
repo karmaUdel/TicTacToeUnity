@@ -20,18 +20,35 @@ public class GameController : MonoBehaviour {
     private string playerSide;
     public GameObject gameOverPanel;
     public Text winText;
+    public Text resetText;
     private int movecount;
+    public GameObject resetButton;
+    public Player playerX;
+    public Player playerO;
+    public PlayerColor activeColor;
+    public PlayerColor inactiveColor;
+
+
+
     void Awake()
     {
         gameOverPanel.SetActive(false);
         SetGameControllerOnButtons();
         playerSide = "X";
         movecount = 0;
+        resetButton.GetComponentInParent<Button>().interactable = true;
+        resetText.text= "Reset";
+        setPlayerColors(playerO, playerX);
+        
     }
+    
     void SetGameControllerOnButtons() {
         for(int i=0;i<buttonList.Length ; i++)
         {
             buttonList[i].GetComponentInParent<GridSpace>().SetGameControllerReference(this);
+            buttonList[i].text = "";
+            buttonList[i].GetComponentInParent<Button>().interactable = true;
+
         }
     }
     public string GetPlayerSide()
@@ -40,10 +57,11 @@ public class GameController : MonoBehaviour {
     }
     public void EndTurn() {
         movecount++;
-        if (movecount >= 9 || checkWin())
+        if (checkWin() || movecount >= 9  )
         {
             gameOverPanel.SetActive(true);
             winText.text = GameOver();
+            resetButton.GetComponentInParent<Button>().interactable = true;//resetWindow();
         }
         else
         {
@@ -51,7 +69,16 @@ public class GameController : MonoBehaviour {
         }
     }
     void changeSides() {
-        playerSide = playerSide == "X" ? "O" : "X";
+        if (playerSide == "X")
+        {
+            playerSide = "O";
+            setPlayerColors(playerX, playerO);
+        }
+        else
+        {
+            playerSide = "X";
+            setPlayerColors(playerO, playerX);
+        }
     }
     string GameOver()
     {
@@ -106,5 +133,17 @@ public class GameController : MonoBehaviour {
         }//3rd row
 
         return win;
+    }
+    public void resetWindow() {
+        // Reset stuff
+        Awake();
+        // disable reset button 
+        // done in awake
+    }
+    void setPlayerColors(Player old, Player newP){
+        newP.panel.color = activeColor.panelColor;
+        newP.text.color = activeColor.textColor;
+        old.panel.color = inactiveColor.panelColor;
+        old.text.color = inactiveColor.textColor;
     }
 }
